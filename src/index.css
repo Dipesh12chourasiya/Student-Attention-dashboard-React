@@ -1,2 +1,25 @@
 @import "tailwindcss";
 @tailwind utilities;
+
+/* Default: session day → light blue */
+.react-calendar__tile.has-session {
+  background-color: #dbeafe !important;
+  border-radius: 10px;
+}
+
+/* Hover */
+.react-calendar__tile.has-session:hover {
+  background-color: #bfdbfe !important;
+}
+
+/* Selected day (normal) */
+.react-calendar__tile--active {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+/*  Selected + has session → darker blue */
+.react-calendar__tile.has-session.react-calendar__tile--active {
+  background-color: #2563eb !important; /* darker blue */
+  color: white !important;
+}

@@ -1,10 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/Dashboard";
 // import Analytics from "../pages/Analytics";
 // import Admin from "../pages/Admin";
-// import Profile from "../pages/Profile";
+import Profile from "../pages/Profile";
 import Login from "../pages/Login";
 
 import { useAuth } from "../hooks/useAuth";
@@ -27,14 +27,14 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
 
         {/* Protected */}
-        {/* <Route
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* <Route
           path="/analytics"
@@ -54,17 +54,17 @@ const AppRoutes = () => {
           }
         /> */}
 
-        {/* <Route
+        <Route
           path="/profile"
           element={
             <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* Default */}
-        {/* <Route path="*" element={<Navigate to="/dashboard" />} /> */}
+        <Route path="*" element={<Navigate to="/dashboard" />} />
 
       </Routes>
     </Router>
