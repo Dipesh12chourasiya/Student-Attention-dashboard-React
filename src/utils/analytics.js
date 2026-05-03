@@ -1,27 +1,13 @@
 import { getDateString, parseCustomDate } from "./dateUtils";
 
-//  FIX: validate using dateTime
+//  VALID SESSIONS (safe guard)
 const getValidSessions = (sessions) => {
   return (sessions || []).filter(
     (s) => s && s.dateTime && parseCustomDate(s.dateTime)
   );
 };
 
-//  Average Attention
-export const getAverageAttention = (sessions) => {
-  const valid = getValidSessions(sessions);
-
-  if (!valid.length) return 0;
-
-  const total = valid.reduce(
-    (sum, s) => sum + (s.attentionPercent || 0),
-    0
-  );
-
-  return Math.round(total / valid.length);
-};
-
-//  Study Streak
+// STUDY STREAK (FIXED)
 export const getStreak = (sessions) => {
   const valid = getValidSessions(sessions);
 
@@ -31,7 +17,7 @@ export const getStreak = (sessions) => {
     ...new Set(valid.map((s) => getDateString(s.dateTime))),
   ]
     .filter(Boolean)
-    .sort();
+    .sort(); // YYYY-MM-DD safe sort
 
   let streak = 1;
 
@@ -42,40 +28,17 @@ export const getStreak = (sessions) => {
     const diff =
       (current - prev) / (1000 * 60 * 60 * 24);
 
-    if (diff === 1) streak++;
-    else break;
+    if (diff === 1) {
+      streak++;
+    } else {
+      break;
+    }
   }
 
   return streak;
 };
 
-//  Subject-wise stats
-export const getSubjectStats = (sessions) => {
-  const valid = getValidSessions(sessions);
-  const map = {};
-
-  valid.forEach((s) => {
-    if (!s.title) return; // subject is "title"
-
-    if (!map[s.title]) map[s.title] = [];
-
-    map[s.title].push(s.attentionPercent || 0);
-  });
-
-  return Object.keys(map).map((subject) => {
-    const scores = map[subject];
-
-    const avg =
-      scores.reduce((a, b) => a + b, 0) / scores.length;
-
-    return {
-      subject,
-      avg: Math.round(avg),
-    };
-  });
-};
-
-//  Best Focus Time
+//  BEST FOCUS TIME (FIXED)
 export const getBestFocusTime = (sessions) => {
   const valid = getValidSessions(sessions);
 
@@ -96,8 +59,8 @@ export const getBestFocusTime = (sessions) => {
     const score = s.attentionPercent || 0;
 
     if (hour >= 6 && hour < 12) buckets.morning.push(score);
-    else if (hour < 17) buckets.afternoon.push(score);
-    else if (hour < 21) buckets.evening.push(score);
+    else if (hour >= 12 && hour < 17) buckets.afternoon.push(score);
+    else if (hour >= 17 && hour < 21) buckets.evening.push(score);
     else buckets.night.push(score);
   });
 
@@ -106,15 +69,17 @@ export const getBestFocusTime = (sessions) => {
       ? arr.reduce((a, b) => a + b, 0) / arr.length
       : 0;
 
-  const result = Object.entries(buckets).map(([time, values]) => ({
-    time,
-    avg: avg(values),
-  }));
+  const result = Object.entries(buckets).map(
+    ([time, values]) => ({
+      time,
+      avg: avg(values),
+    })
+  );
 
   return result.sort((a, b) => b.avg - a.avg)[0];
 };
 
-//  Daily Trend
+//  DAILY TREND (FIXED + SORTED)
 export const getDailyTrend = (sessions) => {
   const valid = getValidSessions(sessions);
   const map = {};
@@ -128,20 +93,73 @@ export const getDailyTrend = (sessions) => {
     map[date].push(s.attentionPercent || 0);
   });
 
-  return Object.keys(map).map((date) => {
-    const scores = map[date];
+  return Object.keys(map)
+    .sort() //  IMPORTANT for line chart
+    .map((date) => {
+      const scores = map[date];
+
+      const avg =
+        scores.reduce((a, b) => a + b, 0) / scores.length;
+
+      return {
+        date,
+        attention: Math.round(avg),
+      };
+    });
+};
+
+// AVERAGE ATTENTION
+export const getAverageAttention = (sessions) => {
+  const valid = getValidSessions(sessions);
+
+  if (!valid.length) return 0;
+
+  const total = valid.reduce(
+    (sum, s) => sum + (s.attentionPercent || 0),
+    0
+  );
+
+  return Math.round(total / valid.length);
+};
+
+//  SUBJECT STATS (FIXED)
+export const getSubjectStats = (sessions) => {
+  const map = {};
+
+  sessions.forEach((s) => {
+    if (!s.title) return;
+
+    //  Normalize subject
+    let subject = s.title.toLowerCase().trim();
+
+    if (subject.includes("dsa")) subject = "DSA";
+    else if (subject.includes("aptitude")) subject = "Aptitude";
+    else if (subject.includes("dbms")) subject = "DBMS";
+    else if (subject.includes("os")) subject = "OS";
+    else if (subject.includes("java")) subject = "Java";
+    else if (subject.includes("english")) subject = "English";
+    else if (subject.includes("japanese")) subject = "Japanese";
+    else subject = "Other";
+
+    if (!map[subject]) map[subject] = [];
+
+    map[subject].push(s.attentionPercent || 0);
+  });
+
+  return Object.keys(map).map((subject) => {
+    const scores = map[subject];
 
     const avg =
       scores.reduce((a, b) => a + b, 0) / scores.length;
 
     return {
-      date,
-      attention: Math.round(avg),
+      subject,
+      avg: Math.round(avg),
     };
   });
 };
 
-//  Weakest Subject
+//  WEAKEST SUBJECT
 export const getWeakestSubject = (sessions) => {
   const stats = getSubjectStats(sessions);
 

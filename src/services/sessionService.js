@@ -1,5 +1,24 @@
-import { ref, onValue, off, remove } from "firebase/database";
+import { ref, onValue, off, remove, get } from "firebase/database";
 import { db } from "./firebase";
+
+
+//  Get single session by ID
+export const getSessionById = async (userId, sessionId) => {
+  try {
+    const snapshot = await get(
+      ref(db, `Sessions/${userId}/${sessionId}`)
+    );
+
+    if (snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      return null;
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 
 //  Get all sessions (realtime)
 export const subscribeToSessions = (userId, callback) => {

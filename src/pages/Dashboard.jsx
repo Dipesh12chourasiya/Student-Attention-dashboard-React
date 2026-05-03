@@ -3,31 +3,30 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import DashboardContainer from "../features/dashboard/DashboardContainer";
 
-import LineChartComponent from "../charts/LineChartComponent";
-import PieChartComponent from "../charts/PieChartComponent";
-import { getDailyTrend, getSubjectStats } from "../utils/analytics";
+import { useAuth } from "../context/AuthContext";
 
 import CalendarView from "../features/dashboard/CalendarView";
 
 const Dashboard = () => {
+  const { userData } = useAuth();
+
   return (
-    <DashboardLayout title="Dashboard" userName="User">
+    <DashboardLayout
+      title="Dashboard"
+      userName={userData?.username || "User"}   // ✅ REAL NAME
+    >
       <DashboardContainer>
         {({
-          sessions, // ✅ get sessions here
+          sessions,
           totalSessions,
           avgAttention,
           streak,
           bestFocus,
         }) => {
-
-          const trendData = getDailyTrend(sessions);
-          const subjectData = getSubjectStats(sessions);
-
           return (
             <div className="space-y-6">
 
-              {/* Top Stats */}
+              {/* Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 <Card title="Total Sessions">
@@ -56,19 +55,10 @@ const Dashboard = () => {
 
               </div>
 
-              {/* Calender */}
+              {/* Calendar */}
               <Card title="Calendar">
-                  <CalendarView sessions={sessions} /> 
+                <CalendarView sessions={sessions} />
               </Card>
-
-              {/* Charts */}
-              {/* <Card title="Attention Trends">
-                <LineChartComponent data={trendData} />
-              </Card>
-
-              <Card title="Subject Performance">
-                <PieChartComponent data={subjectData} />
-              </Card> */}
 
             </div>
           );

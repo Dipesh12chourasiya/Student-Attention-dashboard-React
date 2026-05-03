@@ -12,9 +12,9 @@ const SessionList = ({ sessions = [] }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {sessions.map((session) => (
+      {sessions.map((session, index) => (
         <SessionCard
-          key={session.sessionId}
+          key={session.sessionId || session.id || index}
           session={session}
         />
       ))}
