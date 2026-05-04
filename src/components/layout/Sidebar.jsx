@@ -1,7 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext"; 
 
 const Sidebar = () => {
+  const { userData } = useAuth(); 
+
   const linkClasses =
     "block px-4 py-2 rounded-lg transition";
 
@@ -11,6 +14,8 @@ const Sidebar = () => {
   const inactiveClass =
     "text-gray-700 hover:bg-blue-100";
 
+  const isAdmin = userData?.role === "admin"; //  check role
+
   return (
     <div className="w-64 bg-white border-r border-gray-200 h-screen p-4 hidden md:block">
       
@@ -19,6 +24,7 @@ const Sidebar = () => {
       </h2>
 
       <nav className="flex flex-col gap-2">
+
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
@@ -37,14 +43,17 @@ const Sidebar = () => {
           Analytics
         </NavLink>
 
-        <NavLink
-          to="/admin"
-          className={({ isActive }) =>
-            `${linkClasses} ${isActive ? activeClass : inactiveClass}`
-          }
-        >
-          Admin Panel
-        </NavLink>
+        {/*  SHOW ONLY FOR ADMIN */}
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `${linkClasses} ${isActive ? activeClass : inactiveClass}`
+            }
+          >
+            Admin Panel
+          </NavLink>
+        )}
 
         <NavLink
           to="/profile"
@@ -54,6 +63,7 @@ const Sidebar = () => {
         >
           Profile
         </NavLink>
+
       </nav>
     </div>
   );

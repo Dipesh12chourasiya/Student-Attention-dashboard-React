@@ -5,22 +5,20 @@ import {
   getStreak,
   getBestFocusTime,
 } from "../../utils/analytics";
+import DashboardSkeleton from "../../components/skeletons/DashboardSkeleton";
 
-const DashboardContainer = ({ children }) => {
-  const { sessions, loading } = useSessions();
-  console.log(sessions)
+const DashboardContainer = ({ children, userId }) => {
+  const { sessions = [], loading } = useSessions(userId);
 
   if (loading) {
-    return <p className="p-6">Loading dashboard...</p>;
+    return <DashboardSkeleton />;
   }
 
-  //  Analytics
   const totalSessions = sessions.length;
   const avgAttention = getAverageAttention(sessions);
   const streak = getStreak(sessions);
   const bestFocus = getBestFocusTime(sessions);
 
-  // pass everything to UI
   return children({
     sessions,
     totalSessions,
@@ -30,4 +28,4 @@ const DashboardContainer = ({ children }) => {
   });
 };
 
-export default DashboardContainer;
+export default DashboardContainer; 

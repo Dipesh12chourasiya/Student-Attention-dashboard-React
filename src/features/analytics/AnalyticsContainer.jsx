@@ -9,12 +9,13 @@ import {
 } from "../../utils/analytics";
 
 import { useSessions } from "../../hooks/useSessions";
+import DashboardSkeleton from "../../components/skeletons/DashboardSkeleton";
 
 const AnalyticsContainer = ({ children }) => {
   const { sessions, loading } = useSessions();
 
   if (loading) {
-    return <div className="text-center py-10">Loading...</div>;
+    return <DashboardSkeleton />;
   }
 
   //  Calculations
