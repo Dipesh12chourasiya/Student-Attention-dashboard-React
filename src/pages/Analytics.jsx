@@ -7,9 +7,16 @@ import AnalyticsContainer from "../features/analytics/AnalyticsContainer";
 import LineChartComponent from "../charts/LineChartComponent";
 import PieChartComponent from "../charts/PieChartComponent";
 
+import { useAuth } from "../context/AuthContext"; 
+
 const Analytics = () => {
+  const { userData } = useAuth(); 
+
   return (
-    <DashboardLayout title="Analytics" userName="User">
+    <DashboardLayout
+      title="Analytics"
+      userName={userData?.username || "User"}  
+    >
 
       <AnalyticsContainer>
         {({
@@ -25,7 +32,7 @@ const Analytics = () => {
           return (
             <div className="space-y-6">
 
-              {/*  Top Stats */}
+              {/* Top Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 <Card title="Total Sessions">
@@ -52,7 +59,7 @@ const Analytics = () => {
 
               </div>
 
-              {/*  Trend Chart */}
+              {/* Trend Chart */}
               <Card title="Attention Trend">
                 <LineChartComponent data={trendData} />
               </Card>
