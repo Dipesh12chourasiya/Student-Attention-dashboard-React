@@ -1,12 +1,13 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; 
+import { X } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
-const Sidebar = () => {
-  const { userData } = useAuth(); 
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  const { userData } = useAuth();
 
   const linkClasses =
-    "block px-4 py-2 rounded-lg transition";
+    "block px-4 py-3 rounded-lg transition font-medium";
 
   const activeClass =
     "bg-blue-500 text-white";
@@ -14,58 +15,100 @@ const Sidebar = () => {
   const inactiveClass =
     "text-gray-700 hover:bg-blue-100";
 
-  const isAdmin = userData?.role === "admin"; //  check role
+  const isAdmin = userData?.role === "admin";
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-screen p-4 hidden md:block">
-      
-      <h2 className="text-lg font-bold text-black mb-6">
-        Attention Tracker
-      </h2>
+    <>
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+        />
+      )}
 
-      <nav className="flex flex-col gap-2">
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed md:static top-0 left-0 z-50
+          h-screen w-64 bg-white border-r border-gray-200 p-4
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+        `}
+      >
 
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `${linkClasses} ${isActive ? activeClass : inactiveClass}`
-          }
-        >
-          Dashboard
-        </NavLink>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-black">
+            Attention Tracker
+          </h2>
 
-        <NavLink
-          to="/analytics"
-          className={({ isActive }) =>
-            `${linkClasses} ${isActive ? activeClass : inactiveClass}`
-          }
-        >
-          Analytics
-        </NavLink>
+          {/* Close Button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-1 rounded hover:bg-gray-100"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        {/*  SHOW ONLY FOR ADMIN */}
-        {isAdmin && (
+        {/* Navigation */}
+        <nav className="flex flex-col gap-2">
+
           <NavLink
-            to="/admin"
+            to="/dashboard"
+            onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
-              `${linkClasses} ${isActive ? activeClass : inactiveClass}`
+              `${linkClasses} ${
+                isActive ? activeClass : inactiveClass
+              }`
             }
           >
-            Admin Panel
+            Dashboard
           </NavLink>
-        )}
 
-        <NavLink
-          to="/profile"
-          className={({ isActive }) =>
-            `${linkClasses} ${isActive ? activeClass : inactiveClass}`
-          }
-        >
-          Profile
-        </NavLink>
+          <NavLink
+            to="/analytics"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `${linkClasses} ${
+                isActive ? activeClass : inactiveClass
+              }`
+            }
+          >
+            Analytics
+          </NavLink>
 
-      </nav>
-    </div>
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `${linkClasses} ${
+                  isActive ? activeClass : inactiveClass
+                }`
+              }
+            >
+              Admin Panel
+            </NavLink>
+          )}
+
+          <NavLink
+            to="/profile"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `${linkClasses} ${
+                isActive ? activeClass : inactiveClass
+              }`
+            }
+          >
+            Profile
+          </NavLink>
+
+        </nav>
+      </div>
+    </>
   );
 };
 
