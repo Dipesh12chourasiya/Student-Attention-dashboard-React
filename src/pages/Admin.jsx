@@ -24,6 +24,7 @@ const Admin = () => {
           activeUsers,
           newUsers,
         }) => {
+
           if (loading) return <DashboardSkeleton />;
           
 

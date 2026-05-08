@@ -10,21 +10,31 @@ const AdminContainer = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [usersData, sessionsData] = await Promise.all([
-        getAllUsers(),
-        getAllSessions(),
-      ]);
 
-      setUsers(usersData);
-      setSessionsMap(sessionsData || {});
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [usersData, sessionsData] =
+          await Promise.all([
+            getAllUsers(),
+            getAllSessions(),
+          ]);
+
+        setUsers(usersData || []);
+        setSessionsMap(sessionsData || {});
+      } catch (error) {
+        console.error("Admin fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
+
   }, []);
 
-  //  Merge user + analytics
+  // Merge user + analytics
   const enrichedUsers = users.map((user) => {
     const userSessions =
       sessionsMap[user.uid]
@@ -44,9 +54,10 @@ const AdminContainer = ({ children }) => {
           );
 
     const lastSession =
-      userSessions.sort(
+      [...userSessions].sort(
         (a, b) =>
-          new Date(b.dateTime) - new Date(a.dateTime)
+          new Date(b.dateTime) -
+          new Date(a.dateTime)
       )[0];
 
     const lastActive = lastSession?.dateTime || null;
@@ -56,28 +67,20 @@ const AdminContainer = ({ children }) => {
       totalSessions,
       avgAttention,
       lastActive,
-      status: user.disabled ? "Inactive" : "Active",
+      status: user.disabled
+        ? "Inactive"
+        : "Active",
     };
   });
-
-  //  Stats
-  const totalUsers = users.length;
-
-  const activeUsers = enrichedUsers.filter(
-    (u) => u.status === "Active"
-  ).length;
-
-  const newUsers = users.filter((u) => {
-    // simple logic: created recently (optional improve later)
-    return true;
-  }).length;
 
   return children({
     loading,
     users: enrichedUsers,
-    totalUsers,
-    activeUsers,
-    newUsers,
+    totalUsers: users.length,
+    activeUsers: enrichedUsers.filter(
+      (u) => u.status === "Active"
+    ).length,
+    newUsers: users.length,
   });
 };
 

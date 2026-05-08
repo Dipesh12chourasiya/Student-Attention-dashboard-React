@@ -1,23 +1,26 @@
 import React from "react";
 import UserRow from "./UserRow";
 
+import { useNavigate } from "react-router-dom";
+import {
+  deleteUser,
+  disableUser,
+} from "../../services/adminService";
+
 const UserTable = ({ users = [] }) => {
+  const navigate = useNavigate();
 
   if (!users.length) {
     return (
-      <div className="text-center text-gray-500 py-10">
-        No users found
-      </div>
+      <div className="text-center text-gray-500 py-10">No users found</div>
     );
   }
 
   return (
     <div className="bg-white rounded-2xl shadow overflow-hidden">
-
       {/*  DESKTOP TABLE */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
-
           <thead className="bg-gray-100 text-gray-600 sticky top-0">
             <tr>
               <th className="p-4 text-left">User</th>
@@ -34,69 +37,151 @@ const UserTable = ({ users = [] }) => {
               <UserRow key={user.uid} user={user} />
             ))}
           </tbody>
-
         </table>
       </div>
 
-      {/*  MOBILE VIEW (CARD STYLE) */}
+      {/* MOBILE VIEW */}
       <div className="md:hidden p-4 space-y-4">
-        {users.map((user) => (
-          <div
-            key={user.uid}
-            className="border rounded-xl p-4 shadow-sm space-y-3"
-          >
+        {users.map((user) => {
+          const goToUser = () => {
+            navigate(`/admin/user/${user.uid}`, {
+              state: { user },
+            });
+          };
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
-                {user.username?.charAt(0)?.toUpperCase()}
-              </div>
+          const handleDelete = async () => {
+            if (!window.confirm("Delete user?")) return;
 
-              <div>
-                <p className="font-semibold">{user.username}</p>
-                <p className="text-xs text-gray-500">
-                  {user.email}
-                </p>
-              </div>
-            </div>
+            await deleteUser(user.uid);
 
-            <div className="grid grid-cols-2 text-sm gap-2">
-              <p>Sessions: {user.totalSessions}</p>
-              <p>Attention: {user.avgAttention}%</p>
-              <p>Last Active: {user.lastActive || "—"}</p>
-              <p>
-                Status:{" "}
+            window.location.reload();
+          };
+
+          const handleDisable = async () => {
+            await disableUser(user.uid);
+
+            window.location.reload();
+          };
+
+          return (
+            <div
+              key={user.uid}
+              onClick={goToUser}
+              className="
+          bg-white
+          border border-gray-200
+          rounded-2xl
+          p-4
+          shadow-sm
+          active:scale-[0.98]
+          transition
+        "
+            >
+              {/* Top */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="
+            w-12 h-12
+            rounded-full
+            bg-gradient-to-r
+            from-blue-500
+            to-indigo-600
+            text-white
+            flex items-center justify-center
+            font-semibold
+          "
+                >
+                  {user.username?.charAt(0)?.toUpperCase()}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-800 truncate">
+                    {user.username}
+                  </p>
+
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+
                 <span
-                  className={
-                    user.status === "Active"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }
+                  className={`
+              px-2 py-1 rounded-full text-xs font-medium
+              ${
+                user.status === "Active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }
+            `}
                 >
                   {user.status}
                 </span>
-              </p>
-            </div>
+              </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => disableUser(user.uid)}
-                className="flex-1 bg-yellow-100 text-yellow-700 py-1 rounded"
+              {/* Stats */}
+              <div
+                className="
+          grid grid-cols-2 gap-3
+          mt-4 text-sm
+        "
               >
-                Disable
-              </button>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-gray-500 text-xs">Sessions</p>
 
-              <button
-                onClick={() => deleteUser(user.uid)}
-                className="flex-1 bg-red-100 text-red-600 py-1 rounded"
+                  <p className="font-bold text-gray-800 mt-1">
+                    {user.totalSessions}
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 rounded-xl p-3">
+                  <p className="text-blue-500 text-xs">Attention</p>
+
+                  <p className="font-bold text-blue-700 mt-1">
+                    {user.avgAttention}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Last Active */}
+              <div className="mt-4 text-xs text-gray-500">
+                Last Active: {user.lastActive || "—"}
+              </div>
+
+              {/* Buttons */}
+              <div
+                className="flex gap-2 mt-4"
+                onClick={(e) => e.stopPropagation()}
               >
-                Delete
-              </button>
-            </div>
+                <button
+                  onClick={handleDisable}
+                  className="
+              flex-1 py-2 rounded-xl
+              bg-yellow-100
+              text-yellow-700
+              font-medium text-sm
+              active:scale-95
+              transition
+            "
+                >
+                  Disable
+                </button>
 
-          </div>
-        ))}
+                <button
+                  onClick={handleDelete}
+                  className="
+              flex-1 py-2 rounded-xl
+              bg-red-100
+              text-red-600
+              font-medium text-sm
+              active:scale-95
+              transition
+            "
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
-
     </div>
   );
 };

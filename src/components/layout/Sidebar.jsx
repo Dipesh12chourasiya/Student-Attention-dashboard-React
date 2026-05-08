@@ -94,7 +94,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             </NavLink>
           )}
 
-          <NavLink
+          {/* <NavLink
             to="/profile"
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
@@ -104,7 +104,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             }
           >
             Profile
-          </NavLink>
+          </NavLink> */}
 
         </nav>
       </div>
